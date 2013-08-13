@@ -170,7 +170,7 @@ function ContactGroupSuper(id,name,type,unread){
 		
 	}
 	this.increaseUnreadMessageCount = function(){
-		me.updateCount += 1;
+		me.unreadCount += 1;
 		me.updateUnreadMessages();
 	}
 	this.updateUnreadMessages = function(){
