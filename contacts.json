@@ -1,0 +1,54 @@
+{	
+	"groups": [{
+		"id": "g123456",
+		"name": "Party",
+		"members": ["c123","c456"],
+		"unread": [{
+			"from": "c123",
+			"date": "2012-03-16 22:12:56",
+			"message": "I told you so."
+		},{
+			"from": "c456",
+			"date": "2011-08-13 22:12:56",
+			"message": "I told you so. Twice."
+		}]
+	},{
+		"id": "g123457",
+		"name": "Stuff",
+		"members": ["c123","c124"],
+		"unread": [{
+			"from": "c123",
+			"date": "2013-04-22 14:16:08",
+			"message": "Hi, somebody here?"
+		}]
+	}],
+	"contacts": [{
+		"id": "c123",
+		"name": "Tobias",
+		"publicKey": "wi0nfew8ndfe9qnfg",
+		"friend": true,
+		"unread": []
+	},{
+		"id": "c456",
+		"name": "Martin",
+		"publicKey": "q3zhgsj56jgfsuklh",
+		"friend": true,
+		"unread": []
+	},{
+		"id": "c124",
+		"name": "Andre",
+		"publicKey": "i02tn9UFWPGFSDGx",
+		"friend": true,
+		"unread": [{
+			"from": "c124",
+			"date": "2013-06-06 13:52:04",
+			"message": "I want my money!"
+		}]
+	},{
+		"id": "c333",
+		"name": "Uschi",
+		"publicKey": "328zhrwoguhg4tnds",
+		"friend": false,
+		"unread": []
+	}]
+}
