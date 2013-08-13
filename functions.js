@@ -22,6 +22,7 @@ Controller = {
 		debug("Controller.init: Initialization");
 		this.textField = document.getElementById("messageTextField");
 		this.sendButton = document.getElementById("messageSendButton");
+		$(this.sendButton).click(this.sendMessageClick);
 		this.messageList = document.getElementById("messageList");
 		this.contactListFriends = document.getElementById("contactListFriendsDiv");
 		this.contactListGroups = document.getElementById("contactListGroupsDiv");
@@ -57,6 +58,13 @@ Controller = {
 		debug(chat);
 		this.activeChat = chat;
 		$(this.messageList).empty().append(chat.getDom());
+	},
+	sendMessageClick: function(e){
+		debug("Controller: sendMessageClick. Active Chat:");
+		debug(this.activeChat);
+		if(this.activeChat != null){
+			this.activeChat.sendMessage(this.textField.value);
+		}
 	}
 }
 
@@ -231,6 +239,7 @@ function Chat(owner,type,messages){
 	 * @String message: The message object as raw string
 	 */
 	this.sendMessage = function(message){
+		debug("Chat.sendMessage: " + message);
 		switch(this.type){
 			case "contact":
 				
