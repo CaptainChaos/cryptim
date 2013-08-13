@@ -7,6 +7,9 @@ class User {
 	private $phone;
 	private $pass;
 	
+	/*
+	 * 
+	 */
 	public function __construct($i, $n, $e, $p, $pass)
 	{
 		$this->id = $i;
