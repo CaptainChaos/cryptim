@@ -12,6 +12,7 @@
 		<script src="lib/jquery-1.10.2.min.js" type="text/javascript"></script>
         <script src="user.js" type="text/javascript"></script>
 		<script src="functions.js" type="text/javascript"></script>
+		<script src="crypt.js" type="text/javascript"></script>
 	</head>
 	<body>
 		<div id="containerDiv">
@@ -33,23 +34,26 @@
 			</div>
 			<div id="contentDiv" class="containerInnerDiv">
 				<div id="chatContainerDiv" class="containerOnly">
-					<div id="contactListDiv">
-						<div class="contactListGroup">
-							<div class="contactListGroupCaption">friends</div>
-							<div id="contactListFriendsDiv"></div>
+					<div id="chatLists">
+						<div id="contactListDiv">
+							<div class="contactListGroup">
+								<div class="contactListGroupCaption">friends</div>
+								<div id="contactListFriendsDiv"></div>
+							</div>
+							<div class="contactListGroup">
+								<div class="contactListGroupCaption">groups</div>
+								<div id="contactListGroupsDiv"></div>
+							</div>
 						</div>
-						<div class="contactListGroup">
-							<div class="contactListGroupCaption">groups</div>
-							<div id="contactListGroupsDiv"></div>
-						</div>
-					</div>
-					<div id="messageBoxDiv">
-						<div id="messageInputArea">
-							message
-							<input type="text" id="messageTextField" />
-							<input type="button" value="send" id="messageSendButton"/>
-						</div>
-						<div id="messageList">
+						<div id="messageBoxDiv">
+							<div id="messageList">
+							</div>
+							<div id="messageInputArea">
+								message
+								<input type="text" id="messageTextField" />
+								<input type="button" value="send" id="messageSendButton"/>
+							</div>
+							<div class="floatBreaker"></div>
 						</div>
 					</div>
 				</div>

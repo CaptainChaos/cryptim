@@ -189,6 +189,7 @@
 	
 	#messageList {
 		width: 100%;
+		scrolling: vertical;
 	}
 	
 	div.messageBody {

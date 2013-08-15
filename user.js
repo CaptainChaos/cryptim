@@ -5,7 +5,7 @@
  * @String privKey:	Users private key
  * @String name:	Username
  */
-function User(id,pubKey,privKey,name){
+function UserClass(id,pubKey,privKey,name){
 	this.id = id;
 	this.pubKey = pubKey;
 	this.privKey = privKey;
@@ -29,6 +29,4 @@ function User(id,pubKey,privKey,name){
 	}
 	
 	this.init();
-	
-	return this;
 }
