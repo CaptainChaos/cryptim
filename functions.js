@@ -1,12 +1,18 @@
+var pair;
+
 $(document).ready(function(){
 	openpgp.init();
+	
+	/* test keypair */
+	pair = openpgp.generate_key_pair(1,1024,"name","password");
+	console.log(pair);
 	$(window).resize(UI.makePageLayout);
 	UI.makePageLayout();
 	UI.showChat();
 	Controller.init();
 });
 
-window.debug = function(param){
+debug = function(param){
 	console.log(param);
 }
 //debug = function(){}
@@ -55,16 +61,20 @@ Controller = {
 		return this.groups[id];
 	},
 	makeChatActive: function(chat){
+		if(this.activeChat != null)
+			this.activeChat.active = false;
 		debug("Controller.makeChatActive");
+		chat.active = true;
 		debug(chat);
+		//chat.active = true;
 		this.activeChat = chat;
 		$(this.messageList).empty().append(chat.getDom());
 	},
 	sendMessageClick: function(e){
 		debug("Controller: sendMessageClick. Active Chat:");
-		debug(this.activeChat);
-		if(this.activeChat != null){
-			this.activeChat.sendMessage(this.textField.value);
+		debug(Controller.activeChat);
+		if(Controller.activeChat != null){
+			Controller.activeChat.sendMessage(Controller.textField.value);
 		}
 	}
 }
@@ -243,7 +253,9 @@ function Chat(owner,type,messages){
 		debug("Chat.sendMessage: " + message);
 		switch(this.type){
 			case "contact":
-				
+				debug("Chat: send msg to contact");
+				debug(openpgp.read_publicKey(owner.pubKey));
+				//debug(openpgp.write_encrypted_message(pair, message));
 				break;
 			case "group":
 				
