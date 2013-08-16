@@ -19,7 +19,7 @@ class User {
 		$this->pass = $pass;
 	}
 	
-	/*
+	/**
 	 * 
 	 */
 	public function getNick()
