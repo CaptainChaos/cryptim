@@ -18,5 +18,6 @@ function FAILED($from, $reason)
 {
 	$GLOBALS['return']['success'] = false;
 	$GLOBALS['return']['error'][] = $reason;
+	die(json_encode($GLOBALS['return']));
 }
 ?>
