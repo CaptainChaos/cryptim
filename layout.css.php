@@ -7,6 +7,8 @@
 	$borderColor = "#ddd";
 	$border = $borderWidth . " solid " . $borderColor;
 	
+	$messageColor = "#dde";
+	
 	$borderRadiusSmall = "5px";
 	$borderSmallWidth = "1px";
 	$borderSmallColor = $borderColor;
@@ -195,14 +197,15 @@
 	div.messageBody {
 		border: <?php echo $borderSmall ?>;
 		border-radius: <?php echo $borderRadiusSmall ?>;
-		background-color: <?php echo $bgColorInner ?>;
+		background-color: <?php echo $messageColor ?>;
 		padding: 10px;
 		width: 100%;
 		margin-bottom: 10px;
 	}
 	
 	div.messageHead {
-	
+		font-size: 7pt;
+		font-style: italic;
 	}
 	
 	div.messageText {

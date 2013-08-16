@@ -219,6 +219,7 @@ function ContactGroupSuper(id,name,type){
 		$(me.unreadCountElem).empty().append(document.createTextNode((me.unreadCount == 0 ? "" : "("+me.unreadCount+")")));
 	}
 	this.sendMessage = function(message){
+		debug("ContactGroupSuper.sendMessage: " + message)
 		switch(me.type){
 			case "contact":
 				Connector.sendContactMessage(me.id, me.crypto.encrypt(message), me.chat);
@@ -231,6 +232,7 @@ function ContactGroupSuper(id,name,type){
 			default:
 				debug("ConctactGroupSuper.sendMessage {switch default}");
 		}
+		me.chat.receiveMessage(message);
 	}
 	this.receiveMessage = function(message){
 		this.chat.receiveMessage(message);
@@ -291,6 +293,18 @@ function Chat(owner,type,messages){
 	 */
 	this.receiveMessage = function(message){
 		debug("Chat.receiveMessage: " + message.message);
+		if(me.messages.length == 0){
+			$(me.chatDom).empty();
+		}
+		var tmpMsg = new Message(message.from,message.date,message.message);
+		me.messages.push(tmpMsg);
+		me.chatDom.appendChild(tmpMsg.getDom());
+		if(Controller.activeChat != me){
+			me.owner.increaseUnreadMessageCount();
+		}
+	}
+	this.sendMessage = function(message){
+		debug("Chat.sendMessage: " + message.message);
 		if(me.messages.length == 0){
 			$(me.chatDom).empty();
 		}
