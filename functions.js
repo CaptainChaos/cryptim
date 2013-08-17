@@ -44,6 +44,12 @@ Controller = {
 			Controller.groups[group.id] = tmpGroup;
 			Controller.contactListGroups.appendChild(tmpGroup.getDom());
 		});
+		$.each(Connector.contacts, function(key,contact){
+			Controller.contacts[contact.id].createChat(contact.unread);
+		});
+		$.each(Connector.groups, function(key,group){
+			Controller.groups[group.id].createChat(group.unread);
+		});
 		this.ready = true;
 	},
 	getContactById: function(id){
@@ -60,7 +66,6 @@ Controller = {
 		debug("Controller.makeChatActive");
 		chat.active = true;
 		debug(chat);
-		//chat.active = true;
 		this.activeChat = chat;
 		$(this.messageList).empty().append(chat.getDom());
 	},
@@ -68,7 +73,7 @@ Controller = {
 		debug("Controller: sendMessageClick. Active Chat:");
 		debug(Controller.activeChat);
 		if(Controller.activeChat != null){
-			Controller.activeChat.sendMessage(Controller.textField.value);
+			Controller.activeChat.owner.sendMessage(Controller.textField.value);
 		}
 	}
 }
@@ -101,6 +106,9 @@ UI = {
 	makePageLayout: function(){
 		debug("UI.makePageLayout");
 		$('#messageBoxDiv').width($('#chatContainerDiv').width()-260);
+		var h = $(window).height()-190;
+		$('#contentDiv').height(h);
+		$('#messageList').height(h-60);
 	}
 }
 
@@ -118,8 +126,22 @@ Connector = {
 	refresh: function(){
 	
 	},
-	sendMessage: function(to,chat,msg){
-		
+	sendContactMessage: function(contactId,message,chat){
+		var tmp = {
+			from: User.id,
+			contactId: contactId,
+			message: message
+		}
+		debug(tmp);
+	},
+	sendGroupMessage: function(groupId,contactId,message,chat){
+		var tmp = {
+			from: User.id,
+			groupId: groupId,
+			contactId: contactId,
+			message: message
+		}
+		debug(tmp);
 	},
 	inviteFriend: function(id){
 	
@@ -139,14 +161,14 @@ Connector = {
  * @String type:	"contact" or "group"
  * @Array unread:	Array of unread messages as plain JSON Object
  */
-function ContactGroupSuper(id,name,type,unread){
+function ContactGroupSuper(id,name,type){
 	var me = this;
 	this.id = id;
 	this.name = name;
 	this.type = type;
-	this.chat = new Chat(this,this.type,unread);
+	this.chat = null;
 	this.domElem = null;
-	this.unreadCount = unread.length;
+	this.unreadCount = 0;
 	this.unreadCountElem = null;
 	this.getDom = function(){
 		if(this.domElem == null){
@@ -170,6 +192,10 @@ function ContactGroupSuper(id,name,type,unread){
 		}
 		return this.domElem;
 	}
+	this.createChat = function(unread){
+		this.chat = new Chat(this,this.type,unread);
+		this.setUnreadMessageCount(unread.length);
+	}
 	this.makeChatActive = function(e){
 		debug("ContactGroupSuper.makeChatActive");
 		Controller.makeChatActive(me.chat);
@@ -190,6 +216,25 @@ function ContactGroupSuper(id,name,type,unread){
 		debug("ContactGroupSuper.updateUnreadMessages");
 		$(me.unreadCountElem).empty().append(document.createTextNode((me.unreadCount == 0 ? "" : "("+me.unreadCount+")")));
 	}
+	this.sendMessage = function(message){
+		debug("ContactGroupSuper.sendMessage: " + message)
+		switch(me.type){
+			case "contact":
+				Connector.sendContactMessage(me.id, me.crypto.encrypt(message), me.chat);
+				break;
+			case "group":
+				$.each(me.members, function(key,contact){
+					Connector.sendGroupMessage(me.id, contact.id, contact.crypto.encrypt(message), me.chat);
+				});
+				break;
+			default:
+				debug("ConctactGroupSuper.sendMessage {switch default}");
+		}
+		me.chat.receiveMessage(message);
+	}
+	this.receiveMessage = function(message){
+		this.chat.receiveMessage(message);
+	}
 }
 
 /**
@@ -200,11 +245,14 @@ function ContactGroupSuper(id,name,type,unread){
  * @Boolean friend:	Is contact a friend? Only Friends are shown in list.
  * @Array unread:	Array of unread messages as plain JSON Object
  */
+function Contact(id,name,pubKey,friend){
+	ContactGroupSuper.call(this,id,name,"contact");
 function Contact(id,name,pubKey,friend,unread){
 	ContactGroupSuper.call(this,id,name,"contact",unread);
 	this.symkey = null;
 	this.pubKey = pubKey;
 	this.friend = friend;
+	this.crypto = new Crypto(pubKey,this);
 }
 
 /**
@@ -214,8 +262,8 @@ function Contact(id,name,pubKey,friend,unread){
  * @Array members:	Group Members in plain JSON (e.g.["c134","c325"])
  * @Array unread:	Unread messages in plain JSON Array
  */
-function Group(id,name,members,unread){
-	ContactGroupSuper.call(this,id,name,"group",unread);
+function Group(id,name,members){
+	ContactGroupSuper.call(this,id,name,"group");
 	var me = this;
 	this.members = [];
 	$.each(members, function(key,val){
@@ -286,6 +334,18 @@ function Chat(owner,type,messages){
 			me.owner.increaseUnreadMessageCount();
 		}
 	}
+	this.sendMessage = function(message){
+		debug("Chat.sendMessage: " + message.message);
+		if(me.messages.length == 0){
+			$(me.chatDom).empty();
+		}
+		var tmpMsg = new Message(message.from,message.date,message.message);
+		me.messages.push(tmpMsg);
+		me.chatDom.appendChild(tmpMsg.getDom());
+		if(Controller.activeChat != me){
+			me.owner.increaseUnreadMessageCount();
+		}
+	}
 	/**
 	 * Returns the DOM representation of the element
 	 */
@@ -310,14 +370,12 @@ function Chat(owner,type,messages){
  */
 function Message(from,date,msg){
 	var me = this;
-	this.fromId = from;
-	this.from = null;
+	this.from = Controller.getContactById(from);
 	this.date = date;
 	this.message = msg;
 	this.domElem = null;
 	this.getDom = function(){
 		if(this.domElem == null){
-			this.from = Controller.getContactById(this.fromId);
 			var tmpMsgBody=null, tmpMsgHead=null, tmpMsgText=null;
 			tmpMsgBody = document.createElement('div');
 			tmpMsgBody.setAttribute('class','messageBody');
@@ -339,6 +397,5 @@ function showMessages(msg)
 {
 	console.log(msg);
 }
-
 
 
