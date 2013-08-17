@@ -28,6 +28,7 @@ if(isset($GLOBALS['params']['action']) && ($GLOBALS['params']['action'] == "regi
 				{
 					DEBUG("actions.php", "logged in!");
 					$_SESSION['user'] = $user;
+					$GLOBALS['return']['user'] = $user->toArr();
 					break;
 				}
 			}
@@ -35,7 +36,7 @@ if(isset($GLOBALS['params']['action']) && ($GLOBALS['params']['action'] == "regi
 			{
 				FAILED("actions.php", "no user found, or password wrong!");
 			}
-			DEBUG("actions.php", $users);
+			DEBUG("actions.php", $user->toString());
 			break;
 		case "checkSession":
 			FAILED("actions.php", "no session found");

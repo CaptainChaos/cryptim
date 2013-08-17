@@ -1,11 +1,5 @@
-var pair;
-
 $(document).ready(function(){
 	openpgp.init();
-	
-	/* test keypair */
-	pair = openpgp.generate_key_pair(1,1024,"name","password");
-	console.log(pair);
 	$(window).resize(UI.makePageLayout);
 	UI.makePageLayout();
 	UI.showChat();
@@ -253,6 +247,9 @@ function ContactGroupSuper(id,name,type){
  */
 function Contact(id,name,pubKey,friend){
 	ContactGroupSuper.call(this,id,name,"contact");
+function Contact(id,name,pubKey,friend,unread){
+	ContactGroupSuper.call(this,id,name,"contact",unread);
+	this.symkey = null;
 	this.pubKey = pubKey;
 	this.friend = friend;
 	this.crypto = new Crypto(pubKey,this);
@@ -291,6 +288,36 @@ function Chat(owner,type,messages){
 		me.messages.push(tmpMsg);
 	});
 	this.chatDom = document.createElement("div");
+	/**
+	 * Sends a message to the chat participants
+	 * @String message: The message object as raw string
+	 */
+	this.sendMessage = function(message){
+		debug("Chat.sendMessage: " + message);
+		switch(this.type){
+			case "contact":
+				debug("Chat: send msg to contact");
+				if(owner.symkey != null)
+				{
+					debug(owner.symkey);
+				} else {
+					//RSA keyexchange
+					$.getJSON("backend/action.php", {"action" : "keyExchange", "uid":owner.id, "pubKey":"test"}, function(ret) {
+						debug(ret);
+					});
+				}
+				
+				
+				//debug(openpgp.write_encrypted_message(pair, message));
+				break;
+			case "group":
+				
+				break;
+			default:
+				console.log("Wrong chat type in " + me.owner.id);
+				break;
+		}
+	}
 	/**
 	 * Receives a message for the chat in raw format
 	 * @Object message: raw JSON object containing the message 
@@ -366,5 +393,9 @@ function Message(from,date,msg){
 	}
 }
 
+function showMessages(msg)
+{
+	console.log(msg);
+}
 
 

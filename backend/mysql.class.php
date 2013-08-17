@@ -30,7 +30,7 @@ class sql {
 		{
 			while($row = $result->fetch_assoc())
 			{
-				$ret[] = new User($row['uid'], $row['nick'], $row['email'], $row['phone'], $row['password']);
+				$ret[] = new User($row['uid'], $row['nick'], $row['email'], $row['phone'], $row['password'], $row['publickey'], $row['privateseed'], $row['seclevel']);
 			}
 		} else {
 			FAILED("mysql.php", "mysql qry failed");

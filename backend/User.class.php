@@ -5,17 +5,25 @@ class User {
 	private $nick;
 	private $email;
 	private $phone;
+	
+	private $pubkey;
+	private $privseed;
+	private $seclevel;
+	
 	private $pass;
 	
 	/*
 	 * 
 	 */
-	public function __construct($i, $n, $e, $p, $pass)
+	public function __construct($i, $n, $e, $p, $pass, $pubkey = "", $seed = "", $level = 3)
 	{
 		$this->id = $i;
 		$this->nick = $n;
 		$this->email = $e;
 		$this->phone = $p;
+		$this->pubkey = $pubkey;
+		$this->privseed = $seed;
+		$this->seclevel = $level;
 		$this->pass = $pass;
 	}
 	
@@ -51,5 +59,24 @@ class User {
 	{
 		return true;
 	}
+	
+	public function toString()
+	{
+		return $this->id . ":" . $this->nick;
+	}
+	
+	public function toArr()
+	{
+		$ret = array();
+		$ret["id"] = $this->id;
+		$ret["nick"] = $this->nick;
+		$ret["email"] = $this->email;
+		$ret["phone"] = $this->phone;
+		$ret["pubkey"] = $this->pubkey;
+		$ret["privseed"] = $this->privseed;
+		$ret["seclevel"] = $this->seclevel;
+		return $ret;		
+	}
+	
 }
 ?>
