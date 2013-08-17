@@ -5,15 +5,64 @@
  * @String privKey:	Users private key
  * @String name:	Username
  */
-function UserClass(id,pubKey,privKey,name){
-	this.id = id;
-	this.pubKey = pubKey;
-	this.privKey = privKey;
+function UserClass(name){
+	this.me = this;
+	this.data = null;
+	this.keyPair = null;
 	this.name = name;
+	this.password = null;
 	this.login = function(password) {
-		$.getJSON("backend/actions.php", {"action":"login","username" : this.name, "password" : password}, function(ret) {
-			console.log(ret);
-		});
+		var me = this;
+		if(password != null)
+		{
+			$.getJSON("backend/actions.php", {"action":"login","username" : this.name, "password" : password}, function(ret) {
+				console.log(ret);
+				if(ret.success)
+				{
+					me.data = ret.user;
+					me.password = password;
+					switch(me.data.seclevel)
+					{
+					case "0":
+						//lowes security - static seed
+						me.keyPair = openpgp.generate_static_key_pair(1,2048,me.name,password);
+						break;
+					case "1":
+						//mid security - crypted seed in database
+						var crypted = util.bin2str(JSON.parse(me.data.privseed));
+						var tmpSeed = openpgp_crypto_symmetricDecrypt(10,str_sha512(password),crypted);
+						var jsonSeed = JSON.parse(tmpSeed);
+						var seed = new keyObject();
+						for(var key in seed)
+						{
+							seed[key] = new BigInteger();
+						}
+						
+						for(var key in jsonSeed)
+						{
+							for(var key2 in jsonSeed[key])
+							{
+								seed[key][key2] = jsonSeed[key][key2];
+							}
+						}
+						
+						me.keyPair = openpgp.generate_user_key_pair(1,2048,me.name,password,seed);
+						break;
+					case "2":
+						//high security - private key on users hands
+						break;
+					case "3":
+						//ultra high - always new random seed - no offline msg
+						me.keyPair = openpgp.generate_key_pair(1,2048,me.name,password);
+						break;
+					default:
+						alert("Security Level unknown!");
+						break;
+					}
+					console.log(me.keyPair);
+				}
+			});
+		}
 	}
 	
 	this.logout = function() {
@@ -29,4 +78,16 @@ function UserClass(id,pubKey,privKey,name){
 	}
 	
 	this.init();
+}
+
+function keyObject() {
+	this.n = null;
+	this.e = 0;
+	this.ee = null;
+	this.d = null;
+	this.p = null;
+	this.q = null;
+	this.dmp1 = null;
+	this.dmq1 = null;
+	this.u = null;
 }

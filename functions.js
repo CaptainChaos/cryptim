@@ -1,11 +1,5 @@
-var pair;
-
 $(document).ready(function(){
 	openpgp.init();
-	
-	/* test keypair */
-	pair = openpgp.generate_key_pair(1,1024,"name","password");
-	console.log(pair);
 	$(window).resize(UI.makePageLayout);
 	UI.makePageLayout();
 	UI.showChat();
@@ -208,6 +202,7 @@ function ContactGroupSuper(id,name,type,unread){
  */
 function Contact(id,name,pubKey,friend,unread){
 	ContactGroupSuper.call(this,id,name,"contact",unread);
+	this.symkey = null;
 	this.pubKey = pubKey;
 	this.friend = friend;
 }
@@ -254,7 +249,17 @@ function Chat(owner,type,messages){
 		switch(this.type){
 			case "contact":
 				debug("Chat: send msg to contact");
-				debug(openpgp.read_publicKey(owner.pubKey));
+				if(owner.symkey != null)
+				{
+					debug(owner.symkey);
+				} else {
+					//RSA keyexchange
+					$.getJSON("backend/action.php", {"action" : "keyExchange", "uid":owner.id, "pubKey":"test"}, function(ret) {
+						debug(ret);
+					});
+				}
+				
+				
 				//debug(openpgp.write_encrypted_message(pair, message));
 				break;
 			case "group":
@@ -330,6 +335,10 @@ function Message(from,date,msg){
 	}
 }
 
+function showMessages(msg)
+{
+	console.log(msg);
+}
 
 
 
