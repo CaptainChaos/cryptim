@@ -13,8 +13,12 @@ class sql {
 	
 	public function __construct()
 	{
-		$this->mysqli = new mysqli($this->host, $this->user, $this->pass, $this->db, $this->port);
 		
+		$this->mysqli = @new mysqli($this->host, $this->user, $this->pass, $this->db, $this->port);
+		if ($this->mysqli->connect_error) {
+		    FAILED("mysql.php",'Connect Error (' . $this->mysqli->connect_errno . ') '
+		            . $this->mysqli->connect_error);
+		}
 	}
 	
 	public function getUserByNick($nick)

@@ -1,8 +1,11 @@
-/*
- * @TODO: index.htm / layout.css.php: scrollable ContactList
- */
+var pair;
 
 $(document).ready(function(){
+	openpgp.init();
+	
+	/* test keypair */
+	pair = openpgp.generate_key_pair(1,1024,"name","password");
+	console.log(pair);
 	$(window).resize(UI.makePageLayout);
 	UI.makePageLayout();
 	UI.showChat();
@@ -13,7 +16,6 @@ debug = function(param){
 	console.log(param);
 }
 //debug = function(){}
-User = null;
 
 /**
  * Controller Object
@@ -54,7 +56,6 @@ Controller = {
 		$.each(Connector.groups, function(key,group){
 			Controller.groups[group.id].createChat(group.unread);
 		});
-		User = new UserClass("001","publicKey:323tadfrga","privateKey:ediwh3425wgs","Admin");
 		this.ready = true;
 	},
 	getContactById: function(id){
@@ -66,7 +67,10 @@ Controller = {
 		return this.groups[id];
 	},
 	makeChatActive: function(chat){
+		if(this.activeChat != null)
+			this.activeChat.active = false;
 		debug("Controller.makeChatActive");
+		chat.active = true;
 		debug(chat);
 		this.activeChat = chat;
 		$(this.messageList).empty().append(chat.getDom());
@@ -361,7 +365,6 @@ function Message(from,date,msg){
 		return this.domElem;
 	}
 }
-
 
 
 
