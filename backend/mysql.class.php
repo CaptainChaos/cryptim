@@ -37,7 +37,17 @@ class sql {
 		}
 		return $ret;
 	}
+	
+	public function uploadPubKey($id, $key)
+	{
+		$qry = "UPDATE users SET publickey = '".$key."' WHERE uid='".$id."'";
+		if(!$this->mysqli->query($qry))
+		{
+			FAILED("mysql.php", "UPDATE PUBKEY - " . $this->mysqli->error);
+		}
+	}
 }
+
 
 $GLOBALS['mysql'] = new sql();
 ?>

@@ -57,11 +57,14 @@ if(isset($GLOBALS['params']['action']) && ($GLOBALS['params']['action'] == "regi
 		case "register":
 			FAILED("actions.php", "already registered");
 			break;
+		case "uploadPubKey":
+			$GLOBALS['mysql']->uploadPubKey($_SESSION['user']->getId(), $GLOBALS['params']['key']);
+			break;
 		case "logout":
 			$_SESSION['user'] = NULL;
 			break;
 		case "checkSession":
-			$GLOBALS['return']['user'] = array("id" => $_SESSION['user']->getId(), "nick" => $_SESSION['user']->getNick, "email" => $_SESSION['user']->getEmail(), "phone" => $_SESSION['user']->getPhone());
+			$GLOBALS['return']['user'] = $_SESSION['user']->toArr();
 			break;
 		default:
 			FAILED("actions.php", "action not known");

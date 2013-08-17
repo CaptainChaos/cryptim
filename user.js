@@ -59,7 +59,14 @@ function UserClass(name){
 						alert("Security Level unknown!");
 						break;
 					}
-					console.log(me.keyPair);
+					
+					if(me.keyPair != null)
+					{
+						//upload public key
+						console.log("Uploading pubkey");
+						var pubKey = JSON.stringify(util.str2bin(me.keyPair.publicKeyArmored));
+						$.getJSON("backend/actions.php",{"action":"uploadPubKey","key":pubKey});
+					}
 				}
 			});
 		}
