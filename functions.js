@@ -218,6 +218,7 @@ function ContactGroupSuper(id,name,type){
 	}
 	this.sendMessage = function(message){
 		debug("ContactGroupSuper.sendMessage: " + message)
+		var msgDate = new Date();
 		switch(me.type){
 			case "contact":
 				Connector.sendContactMessage(me.id, me.crypto.encrypt(message), me.chat);
@@ -230,10 +231,13 @@ function ContactGroupSuper(id,name,type){
 			default:
 				debug("ConctactGroupSuper.sendMessage {switch default}");
 		}
-		me.chat.receiveMessage(message);
+		me.chat.newMessage(message);
 	}
 	this.receiveMessage = function(message){
-		this.chat.receiveMessage(message);
+		me.chat.newMessage(message);
+		if(Controller.activeChat != me.chat){
+			me.increaseUnreadMessageCount();
+		}
 	}
 }
 
@@ -289,62 +293,17 @@ function Chat(owner,type,messages){
 	});
 	this.chatDom = document.createElement("div");
 	/**
-	 * Sends a message to the chat participants
-	 * @String message: The message object as raw string
-	 */
-	this.sendMessage = function(message){
-		debug("Chat.sendMessage: " + message);
-		switch(this.type){
-			case "contact":
-				debug("Chat: send msg to contact");
-				if(owner.symkey != null)
-				{
-					debug(owner.symkey);
-				} else {
-					//RSA keyexchange
-					$.getJSON("backend/action.php", {"action" : "keyExchange", "uid":owner.id, "pubKey":"test"}, function(ret) {
-						debug(ret);
-					});
-				}
-				
-				
-				//debug(openpgp.write_encrypted_message(pair, message));
-				break;
-			case "group":
-				
-				break;
-			default:
-				console.log("Wrong chat type in " + me.owner.id);
-				break;
-		}
-	}
-	/**
 	 * Receives a message for the chat in raw format
 	 * @Object message: raw JSON object containing the message 
 	 */
-	this.receiveMessage = function(message){
-		debug("Chat.receiveMessage: " + message.message);
+	this.newMessage = function(from,date,message){
+		debug("Chat.newMessage: " + message);
 		if(me.messages.length == 0){
 			$(me.chatDom).empty();
 		}
-		var tmpMsg = new Message(message.from,message.date,message.message);
+		var tmpMsg = new Message(from,date,message); // TODO: message.from => User
 		me.messages.push(tmpMsg);
 		me.chatDom.appendChild(tmpMsg.getDom());
-		if(Controller.activeChat != me){
-			me.owner.increaseUnreadMessageCount();
-		}
-	}
-	this.sendMessage = function(message){
-		debug("Chat.sendMessage: " + message.message);
-		if(me.messages.length == 0){
-			$(me.chatDom).empty();
-		}
-		var tmpMsg = new Message(message.from,message.date,message.message);
-		me.messages.push(tmpMsg);
-		me.chatDom.appendChild(tmpMsg.getDom());
-		if(Controller.activeChat != me){
-			me.owner.increaseUnreadMessageCount();
-		}
 	}
 	/**
 	 * Returns the DOM representation of the element
