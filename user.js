@@ -66,6 +66,7 @@ function UserClass(name){
 						console.log("Uploading pubkey");
 						var pubKey = JSON.stringify(util.str2bin(me.keyPair.publicKeyArmored));
 						$.getJSON("backend/actions.php",{"action":"uploadPubKey","key":pubKey});
+						Controller.loggedIn();
 					}
 				}
 			});

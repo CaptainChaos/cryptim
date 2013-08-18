@@ -27,11 +27,16 @@ Controller = {
 		this.messageList = document.getElementById("messageList");
 		this.contactListFriends = document.getElementById("contactListFriendsDiv");
 		this.contactListGroups = document.getElementById("contactListGroupsDiv");
+		/*debug("Controller: => Connector.load");
+		Connector.load(this.loaded,this);*/
+	},
+	loggedIn: function() {
 		debug("Controller: => Connector.load");
 		Connector.load(this.loaded,this);
 	},
 	loaded: function(){
 		debug("Controller.loaded: Data loaded. Continue Initialization.");
+		debug("Loading Contacts.");
 		$.each(Connector.contacts, function(key,contact){
 			var tmpContact = new Contact(contact.id,contact.name,contact.publicKey,contact.friend,contact.unread);
 			Controller.contacts[contact.id] = tmpContact;
@@ -39,16 +44,21 @@ Controller = {
 				Controller.contactListFriends.appendChild(tmpContact.getDom());
 			}
 		});
+		debug("Loading Groups.");
 		$.each(Connector.groups, function(key,group){
 			var tmpGroup = new Group(group.id,group.name,group.members,group.unread);
 			Controller.groups[group.id] = tmpGroup;
 			Controller.contactListGroups.appendChild(tmpGroup.getDom());
 		});
+		debug("Loading Contact chats.");
 		$.each(Connector.contacts, function(key,contact){
-			Controller.contacts[contact.id].createChat(contact.unread);
+			if(contact.unread != null || contact.unread.length > 0)
+				Controller.contacts[contact.id].createChat(contact.unread);
 		});
+		debug("Loading Group chats.")
 		$.each(Connector.groups, function(key,group){
-			Controller.groups[group.id].createChat(group.unread);
+			if(group.unread != null)
+				Controller.groups[group.id].createChat(group.unread);
 		});
 		this.ready = true;
 	},
@@ -117,11 +127,34 @@ Connector = {
 	groups: null,
 	load: function(callback,context){
 		debug("Connector.load");
-		$.getJSON('contacts.json', function(data){
-			Connector.contacts = data.contacts;
-			Connector.groups = data.groups;
-			callback.call(context);
+		$.getJSON('backend/actions.php', {"action":"getFriends"}, function(ret){
+			if(ret.success)
+			{
+				console.log(ret);
+				Connector.contacts = ret.data.contacts;
+				Connector.groups = new Array();
+				callback.call(context);
+			} else {
+				alert(ret.error);
+			}
+			
 		});
+		$.getJSON('contacts.json', function(ret){
+			console.log(ret.contacts);
+		});
+		
+		/*$.getJSON('contacts.json', function(ret){
+			console.log(ret.contacts);
+			if(true)
+			{
+				Connector.contacts = ret.contacts;
+				Connector.groups = new Array();
+				callback.call(context);
+			} else {
+				alert(ret.error);
+			}
+			
+		});*/
 	},
 	refresh: function(){
 	

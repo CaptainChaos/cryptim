@@ -60,6 +60,9 @@ if(isset($GLOBALS['params']['action']) && ($GLOBALS['params']['action'] == "regi
 		case "uploadPubKey":
 			$GLOBALS['mysql']->uploadPubKey($_SESSION['user']->getId(), $GLOBALS['params']['key']);
 			break;
+		case "getFriends":
+			$GLOBALS['return']['data'] = $GLOBALS['mysql']->getFriends($_SESSION['user']->getId());
+			break;
 		case "logout":
 			$_SESSION['user'] = NULL;
 			break;
