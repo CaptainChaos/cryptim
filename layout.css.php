@@ -95,7 +95,7 @@
 		border-right: <?php echo $border ?>;
 	}
 	
-	#menuLogin input[type="text"] {
+	#menuLogin input[type="text"], #menuLogin input[type="password"]  {
 		width: 70px;
 		height: 16px;
 		font-size: 10px;
@@ -106,6 +106,11 @@
 	
 	#menuLogin input[type="button"] {
 		height: 24px;
+	}
+	
+	#menuLogin.menuItem {
+		padding: 10px 20px;
+		min-height: 18px;
 	}
 	
 	div.floatBreaker {

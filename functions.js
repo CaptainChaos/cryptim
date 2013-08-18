@@ -1,8 +1,17 @@
 $(document).ready(function(){
+	$.ajaxSetup({ cache: false });
 	openpgp.init();
 	$(window).resize(UI.makePageLayout);
 	UI.makePageLayout();
-	UI.showChat();
+	UI.showHome();
+	$("#loginButton").click(function() {
+		if($("#userNameField").val() != "" && $("#userNameField").val() != $("#userNameField").attr("standart")
+				&& $("#passwordField").val() != "" && $("#passwordField").val() != $("#passwordField").attr("standart"))
+		{
+			User = new UserClass($("#userNameField").val());
+			User.login($("#passwordField").val());
+		}
+	});
 	Controller.init();
 });
 
@@ -11,6 +20,8 @@ debug = function(param){
 }
 //debug = function(){}
 
+User = {}; 
+	
 /**
  * Controller Object
  */
