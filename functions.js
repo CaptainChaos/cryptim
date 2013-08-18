@@ -27,7 +27,7 @@ Controller = {
 		this.messageList = document.getElementById("messageList");
 		this.contactListFriends = document.getElementById("contactListFriendsDiv");
 		this.contactListGroups = document.getElementById("contactListGroupsDiv");
-		debug("Controller: => Connector.load")
+		debug("Controller: => Connector.load");
 		Connector.load(this.loaded,this);
 	},
 	loaded: function(){
@@ -172,7 +172,7 @@ function ContactGroupSuper(id,name,type){
 	this.unreadCountElem = null;
 	this.getDom = function(){
 		if(this.domElem == null){
-			debug("ContactGroupSuper.getDom: Contact / Group ID " + me.id)
+			debug("ContactGroupSuper.getDom: Contact / Group ID " + me.id);
 			var tmpElem=null, tmpSpanElem=null, tmpTextElem=null;
 			tmpElem = document.createElement('div');
 			tmpElem.setAttribute("class", this.type);
@@ -217,7 +217,7 @@ function ContactGroupSuper(id,name,type){
 		$(me.unreadCountElem).empty().append(document.createTextNode((me.unreadCount == 0 ? "" : "("+me.unreadCount+")")));
 	}
 	this.sendMessage = function(message){
-		debug("ContactGroupSuper.sendMessage: " + message)
+		debug("ContactGroupSuper.sendMessage: " + message);
 		switch(me.type){
 			case "contact":
 				Connector.sendContactMessage(me.id, me.crypto.encrypt(message), me.chat);
@@ -245,8 +245,6 @@ function ContactGroupSuper(id,name,type){
  * @Boolean friend:	Is contact a friend? Only Friends are shown in list.
  * @Array unread:	Array of unread messages as plain JSON Object
  */
-function Contact(id,name,pubKey,friend){
-	ContactGroupSuper.call(this,id,name,"contact");
 function Contact(id,name,pubKey,friend,unread){
 	ContactGroupSuper.call(this,id,name,"contact",unread);
 	this.symkey = null;
@@ -302,7 +300,7 @@ function Chat(owner,type,messages){
 					debug(owner.symkey);
 				} else {
 					//RSA keyexchange
-					$.getJSON("backend/action.php", {"action" : "keyExchange", "uid":owner.id, "pubKey":"test"}, function(ret) {
+					$.getJSON("backend/actions.php", {"action" : "keyExchange", "uid":owner.id, "pubKey":"test"}, function(ret) {
 						debug(ret);
 					});
 				}
@@ -397,5 +395,3 @@ function showMessages(msg)
 {
 	console.log(msg);
 }
-
-
