@@ -19,6 +19,11 @@ function UserClass(name){
 				console.log(ret);
 				if(ret.success)
 				{
+					UI.showChat();
+					$('#menuChat').show();
+					$("#menuLogin").addClass("menuItem")
+					$("#menuLogin").html("<a href='javascript:User.logout();'>Logout</a>");
+					
 					me.data = ret.user;
 					me.password = password;
 					switch(me.data.seclevel)
@@ -59,7 +64,15 @@ function UserClass(name){
 						alert("Security Level unknown!");
 						break;
 					}
-					console.log(me.keyPair);
+					
+					if(me.keyPair != null)
+					{
+						//upload public key
+						console.log("Uploading pubkey");
+						var pubKey = JSON.stringify(util.str2bin(me.keyPair.publicKeyArmored));
+						$.getJSON("backend/actions.php",{"action":"uploadPubKey","key":pubKey});
+						Controller.loggedIn();
+					}
 				}
 			});
 		}
@@ -67,7 +80,11 @@ function UserClass(name){
 	
 	this.logout = function() {
 		$.getJSON("backend/actions.php", {"action":"logout"}, function(ret) {
-			console.log(ret);
+			if(ret.success)
+			{
+				window.location = window.location;
+			}
+			
 		});
 	}
 	

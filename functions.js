@@ -1,8 +1,17 @@
 $(document).ready(function(){
+	$.ajaxSetup({ cache: false });
 	openpgp.init();
 	$(window).resize(UI.makePageLayout);
 	UI.makePageLayout();
-	UI.showChat();
+	UI.showHome();
+	$("#loginButton").click(function() {
+		if($("#userNameField").val() != "" && $("#userNameField").val() != $("#userNameField").attr("standart")
+				&& $("#passwordField").val() != "" && $("#passwordField").val() != $("#passwordField").attr("standart"))
+		{
+			User = new UserClass($("#userNameField").val());
+			User.login($("#passwordField").val());
+		}
+	});
 	Controller.init();
 });
 
@@ -11,6 +20,8 @@ debug = function(param){
 }
 //debug = function(){}
 
+User = {}; 
+	
 /**
  * Controller Object
  */
@@ -27,11 +38,16 @@ Controller = {
 		this.messageList = document.getElementById("messageList");
 		this.contactListFriends = document.getElementById("contactListFriendsDiv");
 		this.contactListGroups = document.getElementById("contactListGroupsDiv");
-		debug("Controller: => Connector.load")
+		/*debug("Controller: => Connector.load");
+		Connector.load(this.loaded,this);*/
+	},
+	loggedIn: function() {
+		debug("Controller: => Connector.load");
 		Connector.load(this.loaded,this);
 	},
 	loaded: function(){
 		debug("Controller.loaded: Data loaded. Continue Initialization.");
+		debug("Loading Contacts.");
 		$.each(Connector.contacts, function(key,contact){
 			var tmpContact = new Contact(contact.id,contact.name,contact.publicKey,contact.friend,contact.unread);
 			Controller.contacts[contact.id] = tmpContact;
@@ -39,16 +55,21 @@ Controller = {
 				Controller.contactListFriends.appendChild(tmpContact.getDom());
 			}
 		});
+		debug("Loading Groups.");
 		$.each(Connector.groups, function(key,group){
 			var tmpGroup = new Group(group.id,group.name,group.members,group.unread);
 			Controller.groups[group.id] = tmpGroup;
 			Controller.contactListGroups.appendChild(tmpGroup.getDom());
 		});
+		debug("Loading Contact chats.");
 		$.each(Connector.contacts, function(key,contact){
-			Controller.contacts[contact.id].createChat(contact.unread);
+			if(contact.unread != null || contact.unread.length > 0)
+				Controller.contacts[contact.id].createChat(contact.unread);
 		});
+		debug("Loading Group chats.")
 		$.each(Connector.groups, function(key,group){
-			Controller.groups[group.id].createChat(group.unread);
+			if(group.unread != null)
+				Controller.groups[group.id].createChat(group.unread);
 		});
 		this.ready = true;
 	},
@@ -117,11 +138,34 @@ Connector = {
 	groups: null,
 	load: function(callback,context){
 		debug("Connector.load");
-		$.getJSON('contacts.json', function(data){
-			Connector.contacts = data.contacts;
-			Connector.groups = data.groups;
-			callback.call(context);
+		$.getJSON('backend/actions.php', {"action":"getFriends"}, function(ret){
+			if(ret.success)
+			{
+				console.log(ret);
+				Connector.contacts = ret.data.contacts;
+				Connector.groups = new Array();
+				callback.call(context);
+			} else {
+				alert(ret.error);
+			}
+			
 		});
+		$.getJSON('contacts.json', function(ret){
+			console.log(ret.contacts);
+		});
+		
+		/*$.getJSON('contacts.json', function(ret){
+			console.log(ret.contacts);
+			if(true)
+			{
+				Connector.contacts = ret.contacts;
+				Connector.groups = new Array();
+				callback.call(context);
+			} else {
+				alert(ret.error);
+			}
+			
+		});*/
 	},
 	refresh: function(){
 	
@@ -172,7 +216,7 @@ function ContactGroupSuper(id,name,type){
 	this.unreadCountElem = null;
 	this.getDom = function(){
 		if(this.domElem == null){
-			debug("ContactGroupSuper.getDom: Contact / Group ID " + me.id)
+			debug("ContactGroupSuper.getDom: Contact / Group ID " + me.id);
 			var tmpElem=null, tmpSpanElem=null, tmpTextElem=null;
 			tmpElem = document.createElement('div');
 			tmpElem.setAttribute("class", this.type);
@@ -221,10 +265,20 @@ function ContactGroupSuper(id,name,type){
 		var msgDate = new Date();
 		switch(me.type){
 			case "contact":
+				if(me.symkey != null)
+				{
+					debug(me.symkey);
+				} else {
+					//RSA keyexchange
+					$.getJSON("backend/actions.php", {"action" : "keyExchange", "uid":owner.id, "pubKey":"test"}, function(ret) {
+						debug(ret);
+					});
+				}
 				Connector.sendContactMessage(me.id, me.crypto.encrypt(message), me.chat);
 				break;
 			case "group":
 				$.each(me.members, function(key,contact){
+				// TODO! crypto object?
 					Connector.sendGroupMessage(me.id, contact.id, contact.crypto.encrypt(message), me.chat);
 				});
 				break;
@@ -251,8 +305,6 @@ function ContactGroupSuper(id,name,type){
  */
 function Contact(id,name,pubKey,friend){
 	ContactGroupSuper.call(this,id,name,"contact");
-function Contact(id,name,pubKey,friend,unread){
-	ContactGroupSuper.call(this,id,name,"contact",unread);
 	this.symkey = null;
 	this.pubKey = pubKey;
 	this.friend = friend;
@@ -356,5 +408,4 @@ function showMessages(msg)
 {
 	console.log(msg);
 }
-
 
