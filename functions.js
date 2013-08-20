@@ -12,6 +12,13 @@ $(document).ready(function(){
 			User.login($("#passwordField").val());
 		}
 	});
+	$('#menuLogin input[type="text"], #menuLogin input[type="password"]').focus(function() {
+		if($(this).val() == $(this).attr("standart"))
+			$(this).val("");
+	}).blur(function() {
+		if($(this).val() == "")
+			$(this).val($(this).attr("standart"));
+	});
 	Controller.init();
 });
 
@@ -38,8 +45,10 @@ Controller = {
 		this.messageList = document.getElementById("messageList");
 		this.contactListFriends = document.getElementById("contactListFriendsDiv");
 		this.contactListGroups = document.getElementById("contactListGroupsDiv");
-		/*debug("Controller: => Connector.load");
-		Connector.load(this.loaded,this);*/
+		
+		// Jan: einkommentieren
+		// Eike: auskommentieren
+		debug("Controller: => Connector.load"); Connector.load(this.loaded,this);
 	},
 	loggedIn: function() {
 		debug("Controller: => Connector.load");
@@ -130,6 +139,11 @@ UI = {
 		var h = $(window).height()-190;
 		$('#contentDiv').height(h);
 		$('#messageList').height(h-60);
+	},
+	logout: function(){
+		$("#menuLogout").hide();
+		$("#menuLogin").show();
+		User.logout();
 	}
 }
 
@@ -138,7 +152,16 @@ Connector = {
 	groups: null,
 	load: function(callback,context){
 		debug("Connector.load");
-		$.getJSON('backend/actions.php', {"action":"getFriends"}, function(ret){
+		// Jan: Stub-Kontakte laden
+		$.getJSON('contacts.json', function(ret){
+			console.log(ret);
+			Connector.contacts = ret.contacts;
+			Connector.groups = ret.groups;
+			callback.call(context);
+		});
+		//*/
+		// Eike: Echte Kontakte laden.
+		/*$.getJSON('backend/actions.php', {"action":"getFriends"}, function(ret){
 			if(ret.success)
 			{
 				console.log(ret);
@@ -148,24 +171,8 @@ Connector = {
 			} else {
 				alert(ret.error);
 			}
-			
 		});
-		$.getJSON('contacts.json', function(ret){
-			console.log(ret.contacts);
-		});
-		
-		/*$.getJSON('contacts.json', function(ret){
-			console.log(ret.contacts);
-			if(true)
-			{
-				Connector.contacts = ret.contacts;
-				Connector.groups = new Array();
-				callback.call(context);
-			} else {
-				alert(ret.error);
-			}
-			
-		});*/
+		//*/
 	},
 	refresh: function(){
 	

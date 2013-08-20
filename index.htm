@@ -62,17 +62,6 @@
         <script src="user.js" type="text/javascript"></script>
 		<script src="functions.js" type="text/javascript"></script>
 		<script src="crypt.js" type="text/javascript"></script>
-		<script type="text/javascript">
-			$(document).ready(function() {
-				$('#menuLogin input[type="text"], #menuLogin input[type="password"]').focus(function() {
-					if($(this).val() == $(this).attr("standart"))
-						$(this).val("");
-				}).blur(function() {
-					if($(this).val() == "")
-						$(this).val($(this).attr("standart"));
-				});
-			});
-		</script>
 	</head>
 	<body>
 		<div id="containerDiv">
@@ -86,10 +75,21 @@
 					<input type="password" value="password" standart="password" id="passwordField">
 					<input type="button" value="login" id="loginButton">
 				</div>
-				<div id="menuRegister" class="menuItem"><a href="javascript: UI.showRegister()">register</a></div>
-				<div id="menuHelp" class="menuItem"><a href="javascript: UI.showHelp()">help</a></div>
-				<div id="menuChat" class="menuItem" style="display: none;"><a href="javascript: UI.showChat()">chat</a></div>
-				<div id="menuHome" class="menuItem menuItemActive"><a href="javascript: UI.showHome()">home</a></div>
+				<div id="menuLogout" class="menuItem" style="display: none">
+					<a href='javascript:UI.logout()'>logout</a>
+				</div>
+				<div id="menuRegister" class="menuItem">
+					<a href="javascript: UI.showRegister()">register</a>
+				</div>
+				<div id="menuHelp" class="menuItem">
+					<a href="javascript: UI.showHelp()">help</a>
+				</div>
+				<div id="menuChat" class="menuItem">
+					<a href="javascript: UI.showChat()">chat</a>
+				</div>
+				<div id="menuHome" class="menuItem menuItemActive">
+					<a href="javascript: UI.showHome()">home</a>
+				</div>
 				<div class="floatBreaker"></div>
 			</div>
 			<div id="contentDiv" class="containerInnerDiv">

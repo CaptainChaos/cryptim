@@ -6,24 +6,18 @@
  * @String name:	Username
  */
 function UserClass(name){
-	this.me = this;
+	var me = this;
 	this.data = null;
 	this.keyPair = null;
 	this.name = name;
 	this.password = null;
 	this.login = function(password) {
-		var me = this;
 		if(password != null)
 		{
 			$.getJSON("backend/actions.php", {"action":"login","username" : this.name, "password" : password}, function(ret) {
 				console.log(ret);
 				if(ret.success)
 				{
-					UI.showChat();
-					$('#menuChat').show();
-					$("#menuLogin").addClass("menuItem")
-					$("#menuLogin").html("<a href='javascript:User.logout();'>Logout</a>");
-					
 					me.data = ret.user;
 					me.password = password;
 					switch(me.data.seclevel)
